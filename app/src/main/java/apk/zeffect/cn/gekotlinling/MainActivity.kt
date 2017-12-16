@@ -3,6 +3,7 @@ package apk.zeffect.cn.gekotlinling
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.view.WindowManager
 import apk.zeffect.cn.gekotlinling.R.id.class_type
@@ -64,7 +65,7 @@ class MainActivity : AppCompatActivity(), MainIF.View {
 
 
     private fun initView() {
-        class_type.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        class_type.layoutManager = GridLayoutManager(this, 2)
         class_type.adapter = mAdapter
         mAdapter.setOnItemClickListener { adapter, view, position ->
             val temp = mClassTypes[position]

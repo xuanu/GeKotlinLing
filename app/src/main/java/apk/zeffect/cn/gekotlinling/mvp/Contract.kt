@@ -72,5 +72,7 @@ class PlayContract {
         fun saveBeans(beans: List<DefaultBean>)
         fun changePlayIndex(i: Int)
         fun showToast(toast: String)
+        fun showVideos()
+        fun closeView()
     }
 }

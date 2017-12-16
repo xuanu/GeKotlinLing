@@ -2,12 +2,18 @@ package apk.zeffect.cn.gekotlinling.ui
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.view.View
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.Toast
 import apk.zeffect.cn.gekotlinling.R
 import apk.zeffect.cn.gekotlinling.bean.DefaultBean
 import apk.zeffect.cn.gekotlinling.mvp.PlayContract
 import apk.zeffect.cn.gekotlinling.utils.*
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.BaseViewHolder
 import com.shuyu.gsyvideoplayer.listener.StandardVideoAllCallBack
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer
@@ -35,6 +41,17 @@ import java.lang.StringBuilder
  * @author zzx
  */
 class PlayActivity : AppCompatActivity(), PlayContract.View, StandardVideoAllCallBack {
+    //    private val mChoseBtn by lazy { find<Button>(R.id.chose_video) }
+    private val mVideos by lazy { find<RecyclerView>(R.id.videos) }
+
+    override fun showVideos() {
+
+    }
+
+    override fun closeView() {
+
+    }
+
     override fun showToast(toast: String) {
         toast(toast ?: "")
     }
@@ -68,6 +85,11 @@ class PlayActivity : AppCompatActivity(), PlayContract.View, StandardVideoAllCal
 
     override fun onAutoComplete(url: String?, vararg objects: Any?) {
         //播放完成，放下一个。找到当前和下一个。
+        playNext()
+    }
+
+
+    private fun playNext() {
         if (playPosition + 1 > mBeans.size - 1) return
         val bean = mBeans.get(playPosition + 1)
         val fileurl = bean.fileurl;
@@ -82,6 +104,8 @@ class PlayActivity : AppCompatActivity(), PlayContract.View, StandardVideoAllCal
     }
 
     override fun onClickBlank(url: String?, vararg objects: Any?) {
+        //点击屏蔽会调用这一个
+        mVideos.visibility = if (mVideos.visibility == View.VISIBLE) View.INVISIBLE else View.VISIBLE
     }
 
     override fun onClickStop(url: String?, vararg objects: Any?) {
@@ -120,6 +144,7 @@ class PlayActivity : AppCompatActivity(), PlayContract.View, StandardVideoAllCal
         if (beans == null || beans.isEmpty()) return
         mBeans.clear()
         mBeans.addAll(beans)
+        mAdapter.notifyDataSetChanged()
     }
 
     override fun play(url: String, title: String) {
@@ -144,6 +169,17 @@ class PlayActivity : AppCompatActivity(), PlayContract.View, StandardVideoAllCal
 
     override fun getCache(name: String) = CacheUtils.getCache(this, name)
 
+
+    private val mAdapter by lazy {
+        VideoAdapter(R.layout.item_video, mBeans).apply {
+            this.setOnItemClickListener { adapter, view, position ->
+                changePlayIndex(position - 1)
+                playNext()
+                mVideos.visibility = android.view.View.INVISIBLE
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
@@ -151,6 +187,8 @@ class PlayActivity : AppCompatActivity(), PlayContract.View, StandardVideoAllCal
         mImp.init(intent.getSerializableExtra(Constant.PARAMS) as DefaultBean)
         mVideo.backButton.setOnClickListener { this.finish() }
         mVideo.setStandardVideoAllCallBack(this)
+        mVideos.layoutManager = LinearLayoutManager(this)
+        mVideos.adapter = mAdapter
     }
 
     override fun onPause() {
@@ -221,7 +259,7 @@ class PlayIm(view: PlayContract.View) : PlayContract.Imp {
         map.put("uid", "3577")
         map.put("courseid", bean.id)
         map.put("companyid", "2")
-        map.put("nums", "50")
+        map.put("nums", "10000")
         HttpUtils.postJson(map, HttpUtils.IP + "/index.php/Api2/Video/videoList", object : GLCallback() {
             override fun onResponse(response: String?, id: Int) {
                 val beans = arrayListOf<DefaultBean>()
@@ -239,6 +277,14 @@ class PlayIm(view: PlayContract.View) : PlayContract.Imp {
             override fun onError(call: Call?, e: Exception?, id: Int) {
             }
         })
+    }
+
+}
+
+
+class VideoAdapter(layoutResId: Int, data: MutableList<DefaultBean>?) : BaseQuickAdapter<DefaultBean, BaseViewHolder>(layoutResId, data) {
+    override fun convert(helper: BaseViewHolder?, item: DefaultBean?) {
+        helper?.setText(R.id.item_name, item?.name)
     }
 
 }

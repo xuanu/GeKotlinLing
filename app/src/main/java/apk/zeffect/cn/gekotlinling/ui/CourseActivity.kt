@@ -55,16 +55,19 @@ class CourseActivity : AppCompatActivity(), CourseContract.View {
     override fun initTitle(beans: List<DefaultBean>) {
         mTab.removeAllTabs()
         if (beans == null || beans.isEmpty()) return
-        val mFragments = arrayListOf<Fragment>()
-        for (i in 0 until beans.size - 1) {
-            mFragments.add(CourseFragment().apply { this.arguments = Bundle().apply { this.putSerializable(Constant.PARAMS, beans[i]) } })
+        val titls = arrayListOf<String>()
+        val mFragments = (0 until beans.size).map {
+            CourseFragment().apply {
+                this.arguments = Bundle().apply {
+                    this.putSerializable(Constant.PARAMS, beans[it])
+                    titls.add(beans[it].name)
+                }
+            }
         }
-        val adapter = CourseAdapter(supportFragmentManager, mFragments)
+        val adapter = CourseAdapter(supportFragmentManager, mFragments, titls)
         mPages.adapter = adapter
         mTab.setupWithViewPager(mPages)
-        for (i in 0 until mTab.tabCount - 1) {
-            mTab.getTabAt(i)?.customView = (createView(beans[i]))
-        }
+
 
     }
 
@@ -128,13 +131,17 @@ class CourseImp(view: CourseContract.View) : CourseContract.Imp {
 }
 
 
-class CourseAdapter(manager: FragmentManager, fragments: List<Fragment>) : FragmentPagerAdapter(manager) {
+class CourseAdapter(manager: FragmentManager, fragments: List<Fragment>, titls: List<String>) : FragmentPagerAdapter(manager) {
     private val mFragment = fragments
-
+    private val mTitls = titls
     override fun getItem(position: Int) = mFragment[position]
 
 
     override fun getCount() = mFragment.size
+
+    override fun getPageTitle(position: Int): CharSequence {
+        return mTitls[position]
+    }
 
 }
 
@@ -185,7 +192,7 @@ class CourseFragment : Fragment(), TypeContract.View {
 
     private fun initView(view: View) {
         val mRecy = view.find<RecyclerView>(R.id.recy)
-        mRecy.layoutManager = GridLayoutManager(context, 3)
+        mRecy.layoutManager = GridLayoutManager(context, 2)
         mRecy.adapter = mAdapte
     }
 

@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                                     xmlns:app="http://schemas.android.com/apk/res-auto"
-                                    android:layout_width="246dp"
-                                    android:layout_height="315dp"
+                                    android:layout_width="101dp"
+                                    android:layout_height="129dp"
+                                    android:layout_margin="@dimen/dp_40"
                                     app:cardElevation="16dp">
+
 
     <zeffect.cn.common.view.DarkImage
         android:id="@+id/type_img"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
 
     <TextView
         android:id="@+id/type_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:text="分类名"/>
+        android:text="分类名"
+        android:visibility="invisible"/>
 
 </android.support.v7.widget.CardView>
