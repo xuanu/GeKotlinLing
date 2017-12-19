@@ -1,5 +1,6 @@
 package apk.zeffect.cn.gekotlinling.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -95,6 +96,8 @@ class PlayActivity : AppCompatActivity(), PlayContract.View, StandardVideoAllCal
         val fileurl = bean.fileurl;
         val name = fileurl.substring(fileurl.lastIndexOf("/") + 1, fileurl.lastIndexOf("."))
         mImp.getVideo(playPosition, name)
+        mAdapter.playIndex = playPosition
+        mAdapter.notifyDataSetChanged()
     }
 
     override fun onQuitSmallWidget(url: String?, vararg objects: Any?) {
@@ -201,6 +204,11 @@ class PlayActivity : AppCompatActivity(), PlayContract.View, StandardVideoAllCal
         mVideo.onVideoResume()
     }
 
+    override fun onStop() {
+        super.onStop()
+        GSYVideoPlayer.releaseAllVideos()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         GSYVideoPlayer.releaseAllVideos()
@@ -283,8 +291,12 @@ class PlayIm(view: PlayContract.View) : PlayContract.Imp {
 
 
 class VideoAdapter(layoutResId: Int, data: MutableList<DefaultBean>?) : BaseQuickAdapter<DefaultBean, BaseViewHolder>(layoutResId, data) {
+    public var playIndex = 0
+
+
     override fun convert(helper: BaseViewHolder?, item: DefaultBean?) {
         helper?.setText(R.id.item_name, item?.name)
+        helper?.setTextColor(R.id.item_name, if (helper.adapterPosition == playIndex) Color.parseColor("#85cc75") else Color.parseColor("#ffffff"))
     }
 
 }

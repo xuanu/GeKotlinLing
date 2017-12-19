@@ -1,6 +1,7 @@
 package apk.zeffect.cn.gekotlinling.ui
 
 import android.os.Bundle
+import android.os.Looper
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -23,6 +24,7 @@ import apk.zeffect.cn.gekotlinling.mvp.CourseContract
 import apk.zeffect.cn.gekotlinling.mvp.TypeContract
 import apk.zeffect.cn.gekotlinling.utils.*
 import com.bumptech.glide.Glide
+import com.liaoinstan.springview.widget.SpringView
 import com.zhy.http.okhttp.OkHttpUtils
 import kotlinx.android.synthetic.main.fragment_course.*
 import okhttp3.Call
@@ -185,22 +187,35 @@ class CourseFragment : Fragment(), TypeContract.View {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val tempView = inflater?.inflate(R.layout.fragment_course, container, false)
         initView(tempView!!)
-        mImp.init(mParams)
+        Looper.myQueue().addIdleHandler { mSpringView.callFresh();false }
         return tempView
     }
+
+    private lateinit var mSpringView: SpringView
 
 
     private fun initView(view: View) {
         val mRecy = view.find<RecyclerView>(R.id.recy)
+        mSpringView = view.find(R.id.springview)
         mRecy.layoutManager = GridLayoutManager(context, 2)
         mRecy.adapter = mAdapte
+        val emptyView = LayoutInflater.from(context).inflate(R.layout.layout_empty, null)
+        mAdapte.emptyView = emptyView
+        mSpringView.setListener(object : SpringView.OnFreshListener {
+            override fun onLoadmore() {
+            }
+
+            override fun onRefresh() {
+                mImp.init(mParams)
+            }
+        })
     }
 
     override fun update(pCourse: List<DefaultBean>) {
-        if (pCourse == null || pCourse.isEmpty()) return
         mCoures.clear()
         mCoures.addAll(pCourse)
         mAdapte.notifyDataSetChanged()
+        mSpringView.onFinishFreshAndLoad()
     }
 
 }
