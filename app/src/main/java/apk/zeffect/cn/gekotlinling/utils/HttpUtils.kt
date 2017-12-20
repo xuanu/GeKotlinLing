@@ -144,6 +144,31 @@ object JsonUtils {
         }
         return bottoms
     }
+
+    fun parseDefault(response: Response?): List<DefaultBean> {
+        if (response?.isSuccessful == false) return emptyList()
+        val content = response?.body()?.string()
+        var data = ""
+        try {
+            val contentJson = JSONObject(content)
+            if (!contentJson.isNull("data")) {
+                val dataString = contentJson.getString("data")
+                data = String(Base64.decode(dataString))
+            }
+            if (data.isEmpty()) return Collections.emptyList()
+            val bottoms = arrayListOf<DefaultBean>()
+            val json = JSONObject(data)
+            val code = json.getInt("code")
+            if (code == 200) {
+                val lists = json.getJSONArray("lists")
+                (0 until lists.length()).mapNotNullTo(bottoms) { JsonUtils.toMainBottom(lists.getString(it)) }
+            }
+            return bottoms
+        } catch (e: JSONException) {
+            return emptyList()
+        }
+    }
+
 }
 
 

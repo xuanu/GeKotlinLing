@@ -13,3 +13,5 @@ import java.io.Serializable
  * @author zzx
  */
 data class DefaultBean(val id: String, val name: String, val icon: String, val bgurl: String, val icon2: String = "", val icon3: String = "", val fileurl: String = "") : Serializable
+
+data class IndexBean(val url: String, val index: Int)
