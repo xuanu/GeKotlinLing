@@ -1,17 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.liaoinstan.springview.widget.SpringView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/springview"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:header="@layout/default_header"
-    tools:context="apk.zeffect.cn.gekotlinling.MainActivity">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:id="@+id/container"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/class_type"
+    <ImageView
+        android:id="@+id/bg_img"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </android.support.v7.widget.RecyclerView>
-</com.liaoinstan.springview.widget.SpringView>
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+
+    <com.liaoinstan.springview.widget.SpringView
+        android:id="@+id/springview"
+        android:layout_width="match_parent"
+        android:layout_height="315dp"
+        app:header="@layout/default_header"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:context="apk.zeffect.cn.gekotlinling.MainActivity">
+
+        <com.ryan.rv_gallery.GalleryRecyclerView
+            android:id="@+id/class_type"
+            android:layout_width="wrap_content"
+            android:layout_height="315dp"
+            app:helper="PagerSnapHelper">
+        </com.ryan.rv_gallery.GalleryRecyclerView>
+    </com.liaoinstan.springview.widget.SpringView>
+
+
+</android.support.constraint.ConstraintLayout>
+

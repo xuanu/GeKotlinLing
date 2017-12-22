@@ -48,4 +48,8 @@ dependencies {
     compile "android.arch.lifecycle:runtime:+"
     compile "android.arch.lifecycle:extensions:+"
     annotationProcessor "android.arch.lifecycle:compiler:+"
+    compile "android.arch.persistence.room:runtime:+"
+    annotationProcessor "android.arch.persistence.room:compiler:+"
+    compile 'com.ryan.rv_gallery:rv-gallery:1.0.4'
+    compile 'jp.wasabeef:glide-transformations:2.0.1'
 }

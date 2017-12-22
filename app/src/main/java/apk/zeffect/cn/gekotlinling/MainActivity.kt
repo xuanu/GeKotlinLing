@@ -6,14 +6,21 @@ import android.os.Bundle
 import android.os.Looper
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.view.View
 import android.view.WindowManager
+import apk.zeffect.cn.gekotlinling.adapter.DefaultAdapte
 import apk.zeffect.cn.gekotlinling.adapter.MainBottomAdapter
 import apk.zeffect.cn.gekotlinling.bean.DefaultBean
 import apk.zeffect.cn.gekotlinling.bean.IndexBean
 import apk.zeffect.cn.gekotlinling.ui.CourseActivity
 import apk.zeffect.cn.gekotlinling.utils.*
+import com.bumptech.glide.Glide
 import com.liaoinstan.springview.widget.SpringView
+import com.ryan.rv_gallery.GalleryRecyclerView
 import com.zhy.http.okhttp.OkHttpUtils
+import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.Call
 import okhttp3.Response
@@ -30,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateBottomType(types: List<DefaultBean>) {
         mClassTypes.clear()
         mClassTypes.addAll(types)
+        if (types.isNotEmpty()) mViewModel.bgUrl.postValue(types[0].bgurl)
         mAdapter.notifyDataSetChanged()
         mSpringView.onFinishFreshAndLoad()
     }
@@ -61,20 +69,37 @@ class MainActivity : AppCompatActivity() {
         mViewModel.getDatas().observe(this, Observer<List<DefaultBean>> {
             updateBottomType(it ?: emptyList())
         })
+        mViewModel.bgUrl.observe(this, Observer {
+            Glide.with(this@MainActivity)
+                    .load(it)
+                    .bitmapTransform(BlurTransformation(this, 14, 1))
+                    .into(bg_img)
+        })
     }
 
 
     private val mClassTypes = arrayListOf<DefaultBean>()
-    private val mAdapter: MainBottomAdapter by lazy { MainBottomAdapter(R.layout.item_layout_main_bottom, mClassTypes) }
-
+    private val mAdapter: DefaultAdapte by lazy { DefaultAdapte(this, mClassTypes) }
+    private val mRecy by lazy { find<GalleryRecyclerView>(R.id.class_type) }
 
     private fun initView() {
-        class_type.layoutManager = GridLayoutManager(this, 2)
-        class_type.adapter = mAdapter
-        mAdapter.setOnItemClickListener { adapter, view, position ->
-            val temp = mClassTypes[position]
+        mRecy.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        mRecy.adapter = mAdapter
+        mRecy.setOnItemClickListener { view, i ->
+            val temp = mClassTypes[i]
             startActivity(Intent(this, CourseActivity::class.java).putExtra(Constant.PARAMS, temp))
         }
+        mRecy.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (mClassTypes.isEmpty()) return
+                    if (mRecy.scrolledPosition in 0 until mClassTypes.size) {
+                        mViewModel.bgUrl.postValue(mClassTypes[mRecy.scrolledPosition].bgurl)
+                    }
+                }
+            }
+        })
     }
 
 }
@@ -84,6 +109,8 @@ class MainViewModel : ViewModel() {
     private val datas: MutableLiveData<List<DefaultBean>> = MutableLiveData()
 
     private val playUrl: MutableLiveData<String> = MutableLiveData()
+
+    val bgUrl: MutableLiveData<String> = MutableLiveData()
 
     fun getPlayUrl(): LiveData<String> {
         return playUrl

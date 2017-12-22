@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.liaoinstan.springview.widget.SpringView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/springview"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:header="@layout/default_header">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recy"
+
+    <ImageView
+        android:id="@+id/bg_img"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
-</com.liaoinstan.springview.widget.SpringView>
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+
+    <com.liaoinstan.springview.widget.SpringView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/springview"
+        android:layout_width="246dp"
+        android:layout_height="match_parent"
+        app:header="@layout/default_header"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <com.ryan.rv_gallery.GalleryRecyclerView
+            android:id="@+id/recy"
+            android:layout_width="246dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="24dp"
+            app:helper="LinearySnapHelper"></com.ryan.rv_gallery.GalleryRecyclerView>
+    </com.liaoinstan.springview.widget.SpringView>
+</android.support.constraint.ConstraintLayout>

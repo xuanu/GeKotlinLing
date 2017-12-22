@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +26,11 @@ import apk.zeffect.cn.gekotlinling.bean.DefaultBean
 import apk.zeffect.cn.gekotlinling.utils.Constant
 import com.bumptech.glide.Glide
 import com.liaoinstan.springview.widget.SpringView
+import com.ryan.rv_gallery.GalleryRecyclerView
+import jp.wasabeef.glide.transformations.BlurTransformation
+import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.find
+import org.jetbrains.anko.forEachChild
 
 /**
  * <pre>
@@ -41,7 +46,7 @@ class CourseActivity : AppCompatActivity() {
 
 
     fun createView(bean: DefaultBean): View {
-        val tempView = LayoutInflater.from(this).inflate(R.layout.item_layout_main_bottom, null)
+        val tempView = LayoutInflater.from(this).inflate(R.layout.item_layout_main_bottom_2, mTab, false)
         tempView.find<TextView>(R.id.type_name).text = bean.name
         Glide.with(this).load(bean.icon).into(tempView.find<ImageView>(R.id.type_img))
         return tempView
@@ -67,7 +72,7 @@ class CourseActivity : AppCompatActivity() {
         val adapter = CourseAdapter(supportFragmentManager, mFragments, titls)
         mPages.adapter = adapter
         mTab.setupWithViewPager(mPages)
-
+        for (i in 0 until mTab.tabCount) mTab.getTabAt(i)?.customView = createView(beans[i])
 
     }
 
@@ -134,9 +139,20 @@ class CourseFragment : Fragment() {
             mView = inflater?.inflate(R.layout.fragment_course, container, false)
             initView(mView!!)
             mViewModel.getDatas().observe(this, Observer { update(it ?: emptyList()) })
-            Looper.myQueue().addIdleHandler { mSpringView.callFresh();false }
+            mViewModel.bgUrl.observe(this, Observer {
+                updateBg(it ?: "")
+            })
+            Looper.myQueue().addIdleHandler { mSpringView.callFresh();mViewModel.bgUrl.postValue(mParams.bgurl);false }
         }
         return mView
+    }
+
+    private fun updateBg(url: String) {
+        if (url.isEmpty()) return
+        Glide.with(this)
+                .load(url)
+                .bitmapTransform(BlurTransformation(context, 14, 1))
+                .into(bg_img)
     }
 
     override fun onDestroyView() {
@@ -147,9 +163,9 @@ class CourseFragment : Fragment() {
 
 
     private fun initView(view: View) {
-        val mRecy = view.find<RecyclerView>(R.id.recy)
+        val mRecy = view.find<GalleryRecyclerView>(R.id.recy)
         mSpringView = view.find(R.id.springview)
-        mRecy.layoutManager = GridLayoutManager(context, 2)
+        mRecy.layoutManager = LinearLayoutManager(context)
         mRecy.adapter = mAdapte
         val mEmptyView = LayoutInflater.from(context).inflate(R.layout.layout_empty, mSpringView, false)
         mAdapte.emptyView = mEmptyView
@@ -161,6 +177,9 @@ class CourseFragment : Fragment() {
                 mViewModel.getCourse(mParams)
             }
         })
+        mRecy.setOnItemClickListener { view, i ->
+            startActivity(android.content.Intent(context, PlayActivity::class.java).putExtra(Constant.PARAMS, mCoures[i]))
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
